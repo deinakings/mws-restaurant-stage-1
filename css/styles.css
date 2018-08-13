@@ -297,3 +297,40 @@ nav h1 a {
 #restaurant-hours td {
   color: #666;
 }
+
+/* ================== tablet ====================== */
+@media screen and (min-width: 1024px) {
+  .main #maincontent {
+    height: calc(100vh - 80px - 65px);
+    flex-direction: row;
+  }
+  .main #map-container {
+    flex: 1.5;
+    order: 2;
+    /* position: fixed; */
+  }
+  .main #map {
+    height: 100%;
+  }
+  .main .list {
+    flex: 1;
+    order: 1;
+    overflow: scroll;
+  }
+  .main .filter-options select {
+    max-width: 162px;
+    width: 100%;
+  }
+  #restaurants-list {
+    /* overflow: scroll; */
+  }
+}
+
+@media screen and (min-width: 1200px) {
+  .main #map-container {
+    flex: 2;
+  }
+  .main .list {
+    flex: 1;
+  }
+}
