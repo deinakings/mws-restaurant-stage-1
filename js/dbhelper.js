@@ -3,13 +3,16 @@
  */
 class DBHelper {
 
+    static get GH_PAGES_PATH() {
+        return '/mws-restaurant-stage-1';
+    }
     /**
      * Database URL.
      * Change this to restaurants.json file location on your server.
      */
     static get DATABASE_URL() {
         const port = 8000 // Change this to your server port
-        return `/mws-restaurant-stage-1/data/restaurants.json`;
+        return `${this.GH_PAGES_PATH}/data/restaurants.json`;
     }
 
     /**
@@ -150,7 +153,7 @@ class DBHelper {
      * Restaurant image URL.
      */
     static imageUrlForRestaurant(restaurant) {
-        return (`/img/${restaurant.photograph}`);
+        return (`${this.GH_PAGES_PATH}/img/${restaurant.photograph}`);
     }
 
     /**
