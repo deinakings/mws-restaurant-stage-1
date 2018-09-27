@@ -65,6 +65,40 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
     text-transform: uppercase;
 }
 
+#page-mesage {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    background: #292828;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+#page-mesage p {
+    color: white;
+    text-transform: uppercase;
+    font-size: 14px;
+}
+
+#page-mesage button {
+    background: none;
+    border: none;
+    color: darkmagenta;
+    text-transform: uppercase;
+    font-size: 14px;
+}
+
+#page-mesage.message-hide {
+    display: none;
+}
+
+#page-mesage.message-show {
+    display: fixed;
+}
+
 /* ====================== Navigation ====================== */
 
 nav {
@@ -325,10 +359,12 @@ nav h1 a {
     padding: 15px 20px;
     background-color: #252831;
 }
+
 #reviews-list .review-header p {
     margin: 0px;
     padding: 0;
 }
+
 #reviews-list .date {
     color: #aaa;
 }
@@ -342,6 +378,7 @@ nav h1 a {
     margin: 0;
     padding: 10px 20px 20px;
 }
+
 #reviews-list .rating {
     padding: 15px 20px 5px 20px;
 }
@@ -381,7 +418,6 @@ nav h1 a {
         max-width: 162px;
         width: 100%;
     }
-
     /* ==== detail page ===== */
     .inside #maincontent {
         flex-direction: row;

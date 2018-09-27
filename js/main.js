@@ -5,12 +5,70 @@ var newMap
 var markers = []
 
 /**
+ * Register the service worker.
+ */
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js')
+            .then(reg => {
+                console.log('Registration worked!');
+                // page was not loaded with a service worker
+                // it was loaded from network.
+                if (!navigator.serviceWorker.controller) return;
+                if (reg.waiting) {
+                    // there is an update ready
+                    showUpdateMessage();
+                } else if (reg.installing) {
+                    // there is an update in progress
+                    // track the progress
+                    stateChange(reg);
+                } else {
+                    reg.addEventListener('updatefound', () => {
+                        stateChange(reg);
+                    });
+                }
+                
+            })
+            .catch(() => {
+                console.log('Regitration failed :(');
+            });
+    });
+}
+/**
+ * Listen on statechange event of a installing
+ * service worker.
+ */
+stateChange = function(reg) {
+    reg.installing.addEventListener('statechange', event => {
+        if (event.target.state === 'installed') {
+            // the update is ready
+            showUpdateMessage();
+        }
+    });
+};
+
+showUpdateMessage = () => {
+    console.log('update message');
+    // const messageDiv = document.createElement('div');
+    // messageDiv.innerHTML = '<p>Update Available!<p><button>Update</button>';
+    // messageDiv.value = neighborhood;
+    const pageMessage = document.getElementById('page-mesage');
+    pageMessage.className = 'message-show';
+    // pageMessage.innerHTML = '<p>Update Available!<p><button>Update</button>';
+};
+
+hideUpdateMessage = () => {
+    const pageMessage = document.getElementById('page-mesage');
+    pageMessage.className = 'message-hide';
+};
+/**
  * Fetch neighborhoods and cuisines as soon as the page is loaded.
  */
 document.addEventListener('DOMContentLoaded', (event) => {
     initMap(); // added 
     fetchNeighborhoods();
     fetchCuisines();
+    hideUpdateMessage();
 });
 
 /**
