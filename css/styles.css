@@ -96,7 +96,7 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
 }
 
 #page-mesage.message-show {
-    display: fixed;
+    display: flex;
 }
 
 /* ====================== Navigation ====================== */

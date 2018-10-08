@@ -1,8 +1,9 @@
 let restaurants,
     neighborhoods,
     cuisines
-var newMap
-var markers = []
+var newMap;
+var markers = [];
+let newServiceWorker;
 
 /**
  * Register the service worker.
@@ -17,7 +18,7 @@ if ('serviceWorker' in navigator) {
                 if (!navigator.serviceWorker.controller) return;
                 if (reg.waiting) {
                     // there is an update ready
-                    showUpdateMessage();
+                    showUpdateMessage(reg.waiting);
                 } else if (reg.installing) {
                     // there is an update in progress
                     // track the progress
@@ -32,6 +33,9 @@ if ('serviceWorker' in navigator) {
             .catch(() => {
                 console.log('Regitration failed :(');
             });
+        navigator.serviceWorker.addEventListener('controllerchange', event => {
+            window.location.reload();
+        });
     });
 }
 /**
@@ -42,24 +46,44 @@ stateChange = function(reg) {
     reg.installing.addEventListener('statechange', event => {
         if (event.target.state === 'installed') {
             // the update is ready
-            showUpdateMessage();
+            showUpdateMessage(event.target);
         }
     });
 };
 
-showUpdateMessage = () => {
-    console.log('update message');
-    // const messageDiv = document.createElement('div');
-    // messageDiv.innerHTML = '<p>Update Available!<p><button>Update</button>';
-    // messageDiv.value = neighborhood;
+showUpdateMessage = worker => {
+    newServiceWorker = worker;
     const pageMessage = document.getElementById('page-mesage');
     pageMessage.className = 'message-show';
-    // pageMessage.innerHTML = '<p>Update Available!<p><button>Update</button>';
 };
 
-hideUpdateMessage = () => {
-    const pageMessage = document.getElementById('page-mesage');
-    pageMessage.className = 'message-hide';
+createUpdateMessage = () => {
+    const messageDiv = document.createElement('div');
+    const messageEl = document.createElement('p');
+    const updateButton = document.createElement('button');
+    
+    messageDiv.setAttribute('id', 'page-mesage');
+    messageDiv.className = 'message-hide';
+    updateButton.setAttribute('id', 'update-page');
+    updateButton.innerHTML = 'Update';
+    messageEl.innerHTML = 'Update Available!';
+    
+    messageDiv.appendChild(messageEl);
+    messageDiv.appendChild(updateButton);
+        
+    document.body.appendChild(messageDiv);
+
+    workerUpdateListener();
+};
+
+workerUpdateListener = () => {
+    const updateButton = document.getElementById('update-page');
+    updateButton.addEventListener('click', event => {
+        if (newServiceWorker) {
+            newServiceWorker.postMessage({skipWaiting: true});
+            newServiceWorker = null;
+        }
+    });
 };
 /**
  * Fetch neighborhoods and cuisines as soon as the page is loaded.
@@ -68,7 +92,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     initMap(); // added 
     fetchNeighborhoods();
     fetchCuisines();
-    hideUpdateMessage();
+    createUpdateMessage();
 });
 
 /**
