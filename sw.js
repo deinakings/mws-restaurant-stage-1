@@ -1,8 +1,11 @@
 
-const cacheName = 'mws-restaurant-v4';
+const imageCacheName = 'mws-restaurant-images-v1';
+const cacheName = 'mws-restaurant-v1';
 const cacheUrls = [
     '/',
+    '/restaurant.html',
     '/css/styles.css',
+    '/js/core.js',
     '/js/dbhelper.js',
     '/js/main.js',
     '/js/restaurant_info.js',
@@ -36,11 +39,25 @@ self.addEventListener('activate', event => {
     );
 });
 
+
 self.addEventListener('fetch', event => {
-    event.respondWith(
-        caches.match(event.request)
-            .then(response => response || fetch(event.request))
-    );
+    if (event.request.url.endsWith('.jpg')) {
+        event.respondWith(
+            caches.match(event.request)
+                .then(response => response || addToCache(event.request))
+        );
+    }
+    else if (event.request.url.indexOf('/restaurant.html') !== -1) {
+        event.respondWith(
+            caches.match('/restaurant.html')
+                .then(response => response || fetch('/restaurant.html'))
+        );
+    } else {
+        event.respondWith(
+            caches.match(event.request)
+                .then(response => response || fetch(event.request))
+        );
+    }
 });
 
 self.addEventListener('message', event => {
@@ -48,3 +65,13 @@ self.addEventListener('message', event => {
         self.skipWaiting();
     }
 });
+
+addToCache = request => {
+    return caches.open(imageCacheName)
+        .then(cache => {
+            return fetch(request).then(response => {
+                cache.put(request.url, response.clone());
+                return response;
+            });
+        });
+};
