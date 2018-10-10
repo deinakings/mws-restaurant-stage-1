@@ -1,7 +1,6 @@
 /**
  * Core code to be shared by restaurant list and detail page.
  */
- 
 let newServiceWorker;
 
 /**
@@ -27,7 +26,6 @@ if ('serviceWorker' in navigator) {
                         stateChange(reg);
                     });
                 }
-                
             })
             .catch(() => {
                 console.log('Regitration failed :(');
@@ -41,6 +39,7 @@ if ('serviceWorker' in navigator) {
 /**
  * Listen on statechange event of a installing
  * service worker.
+ * @param {object} reg - The registration object.
  */
 stateChange = function(reg) {
     reg.installing.addEventListener('statechange', event => {
@@ -53,7 +52,7 @@ stateChange = function(reg) {
 
 /**
  * Show the update message.
- * 
+ * @param {object} worker - The service worker object.
  */
 showUpdateMessage = worker => {
     newServiceWorker = worker;
@@ -61,6 +60,9 @@ showUpdateMessage = worker => {
     pageMessage.className = 'message-show';
 };
 
+/**
+ * Create the update message element.
+ */
 createUpdateMessage = () => {
     const messageDiv = document.createElement('div');
     const messageEl = document.createElement('p');
@@ -80,6 +82,9 @@ createUpdateMessage = () => {
     workerUpdateListener();
 };
 
+/**
+ * Adds event listener for the update page button.
+ */
 workerUpdateListener = () => {
     const updateButton = document.getElementById('update-page');
     updateButton.addEventListener('click', event => {
@@ -91,7 +96,8 @@ workerUpdateListener = () => {
 };
 
 /**
- * Create update message.
+ * Create the update message.
+ * @param {object} event - the event object.
  */
 document.addEventListener('DOMContentLoaded', (event) => {
     createUpdateMessage();

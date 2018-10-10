@@ -1,4 +1,6 @@
-
+/**
+ * Service Worker code.
+ */
 const imageCacheName = 'mws-restaurant-images-v1';
 const cacheName = 'mws-restaurant-v1';
 const cacheUrls = [
@@ -21,6 +23,7 @@ const cacheUrls = [
 self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(cacheName)
+            // add page resources to the cache on Service worker install.
             .then(cache => cache.addAll(cacheUrls))
     );
 });
@@ -47,10 +50,11 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
     var requestUrl = new URL(event.request.url);
 
+    // if an image is not in the cache fetch it and cache it.
     if (isImage(requestUrl.pathname)) {
             event.respondWith(
                 caches.match(event.request)
-                    .then(response => response || addToCache(event.request))
+                    .then(response => response || addToImageCache(event.request))
             );
     }
     else if (requestUrl.pathname === '/restaurant.html') {
@@ -67,12 +71,19 @@ self.addEventListener('fetch', event => {
 });
 
 self.addEventListener('message', event => {
+    // if we recive a message from the user to update the app
+    // we skipWaiting to activate the new service worker.
     if (event.data && event.data.skipWaiting) {
         self.skipWaiting();
     }
 });
 
-addToCache = request => {
+/**
+ * Adds an image to the image cache.
+ * @param {object} request - the request object.
+ * @resturn Promise
+ */
+addToImageCache = request => {
     return caches.open(imageCacheName)
         .then(cache => {
             return fetch(request).then(response => {
@@ -82,6 +93,11 @@ addToCache = request => {
         });
 };
 
+/**
+ * Checks if the url is for an image.
+ * @param {string} url - the url.
+ * @returns boolean
+ */
 isImage = url => {
     return url.endsWith('.jpg') ||
     url.endsWith('.jpg70') ||
