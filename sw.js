@@ -32,7 +32,11 @@ self.addEventListener('activate', event => {
                 return Promise.all(
                     // delete old caches
                     keys
-                        .filter(key => key.startsWith('mws-restaurant') && key !== cacheName)
+                        .filter(key => {
+                            return key.startsWith('mws-restaurant') &&
+                                key !== cacheName &&
+                                key !== imageCacheName;
+                        })
                         .map(key => caches.delete(key))
                 );
             })
@@ -41,16 +45,18 @@ self.addEventListener('activate', event => {
 
 
 self.addEventListener('fetch', event => {
-    if (event.request.url.endsWith('.jpg')) {
-        event.respondWith(
-            caches.match(event.request)
-                .then(response => response || addToCache(event.request))
-        );
+    var requestUrl = new URL(event.request.url);
+
+    if (isImage(requestUrl.pathname)) {
+            event.respondWith(
+                caches.match(event.request)
+                    .then(response => response || addToCache(event.request))
+            );
     }
-    else if (event.request.url.indexOf('/restaurant.html') !== -1) {
+    else if (requestUrl.pathname === '/restaurant.html') {
         event.respondWith(
-            caches.match('/restaurant.html')
-                .then(response => response || fetch('/restaurant.html'))
+            caches.match(requestUrl.pathname)
+                .then(response => response || fetch(requestUrl.pathname))
         );
     } else {
         event.respondWith(
@@ -74,4 +80,10 @@ addToCache = request => {
                 return response;
             });
         });
+};
+
+isImage = url => {
+    return url.endsWith('.jpg') ||
+    url.endsWith('.jpg70') ||
+    url.endsWith('.png');
 };
