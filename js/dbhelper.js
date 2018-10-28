@@ -8,8 +8,10 @@ class DBHelper {
      * Change this to restaurants.json file location on your server.
      */
     static get DATABASE_URL() {
-        const port = 8000 // Change this to your server port
-        return `/data/restaurants.json`;
+        const port = 8080 // Change this to your server port
+        const domain = 'mws-restaurant-stage-2-deinakings.c9users.io';
+        const protocol = 'https';
+        return `${protocol}://${domain}:${port}/restaurants`;
     }
 
     /**
@@ -21,7 +23,7 @@ class DBHelper {
         xhr.onload = () => {
             if (xhr.status === 200) { // Got a success response from server!
                 const json = JSON.parse(xhr.responseText);
-                const restaurants = json.restaurants;
+                const restaurants = json;
                 callback(null, restaurants);
             } else { // Oops!. Got an error from server.
                 const error = (`Request failed. Returned status of ${xhr.status}`);
@@ -150,7 +152,11 @@ class DBHelper {
      * Restaurant image URL.
      */
     static imageUrlForRestaurant(restaurant) {
-        return (`/img/${restaurant.photograph}`);
+        const photograph = restaurant.photograph;
+        if (!photograph) {
+            photograph = restaurant.id;
+        }
+        return (`/img/${photograph}.jpg`);
     }
 
     /**
