@@ -14,5 +14,8 @@
   "author": "",
   "license": "ISC",
   "homepage": "https://github.com/deinakings/mws-restaurant-stage-1",
-  "devDependencies": {}
+  "devDependencies": {},
+  "dependencies": {
+    "idb": "^2.1.3"
+  }
 }

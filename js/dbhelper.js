@@ -2,6 +2,10 @@
  * Common database helper functions.
  */
 class DBHelper {
+    
+    constructor() {
+        this.idbHelper = new IDBHelper();
+    }
 
     /**
      * Database URL.
@@ -17,13 +21,19 @@ class DBHelper {
     /**
      * Fetch all restaurants.
      */
-    static fetchRestaurants(callback) {
+    fetchRestaurants(callback) {
         let xhr = new XMLHttpRequest();
         xhr.open('GET', DBHelper.DATABASE_URL);
         xhr.onload = () => {
             if (xhr.status === 200) { // Got a success response from server!
                 const json = JSON.parse(xhr.responseText);
                 const restaurants = json;
+                this.idbHelper.saveRestaurants(restaurants)
+                    .then(() => {
+                        console.log('restaurants saved to indexedDB!')
+                        this.idbHelper.getRestaurants().then(rest => console.log(rest));
+                    })
+                    .catch(err => console.error('error saving to indexedDB:', err));
                 callback(null, restaurants);
             } else { // Oops!. Got an error from server.
                 const error = (`Request failed. Returned status of ${xhr.status}`);
@@ -36,9 +46,9 @@ class DBHelper {
     /**
      * Fetch a restaurant by its ID.
      */
-    static fetchRestaurantById(id, callback) {
+    fetchRestaurantById(id, callback) {
         // fetch all restaurants with proper error handling.
-        DBHelper.fetchRestaurants((error, restaurants) => {
+        this.fetchRestaurants((error, restaurants) => {
             if (error) {
                 callback(error, null);
             } else {
@@ -55,9 +65,9 @@ class DBHelper {
     /**
      * Fetch restaurants by a cuisine type with proper error handling.
      */
-    static fetchRestaurantByCuisine(cuisine, callback) {
+    fetchRestaurantByCuisine(cuisine, callback) {
         // Fetch all restaurants  with proper error handling
-        DBHelper.fetchRestaurants((error, restaurants) => {
+        this.fetchRestaurants((error, restaurants) => {
             if (error) {
                 callback(error, null);
             } else {
@@ -71,9 +81,9 @@ class DBHelper {
     /**
      * Fetch restaurants by a neighborhood with proper error handling.
      */
-    static fetchRestaurantByNeighborhood(neighborhood, callback) {
+    fetchRestaurantByNeighborhood(neighborhood, callback) {
         // Fetch all restaurants
-        DBHelper.fetchRestaurants((error, restaurants) => {
+        this.fetchRestaurants((error, restaurants) => {
             if (error) {
                 callback(error, null);
             } else {
@@ -87,9 +97,9 @@ class DBHelper {
     /**
      * Fetch restaurants by a cuisine and a neighborhood with proper error handling.
      */
-    static fetchRestaurantByCuisineAndNeighborhood(cuisine, neighborhood, callback) {
+    fetchRestaurantByCuisineAndNeighborhood(cuisine, neighborhood, callback) {
         // Fetch all restaurants
-        DBHelper.fetchRestaurants((error, restaurants) => {
+        this.fetchRestaurants((error, restaurants) => {
             if (error) {
                 callback(error, null);
             } else {
@@ -108,9 +118,9 @@ class DBHelper {
     /**
      * Fetch all neighborhoods with proper error handling.
      */
-    static fetchNeighborhoods(callback) {
+    fetchNeighborhoods(callback) {
         // Fetch all restaurants
-        DBHelper.fetchRestaurants((error, restaurants) => {
+        this.fetchRestaurants((error, restaurants) => {
             if (error) {
                 callback(error, null);
             } else {
@@ -126,9 +136,9 @@ class DBHelper {
     /**
      * Fetch all cuisines with proper error handling.
      */
-    static fetchCuisines(callback) {
+    fetchCuisines(callback) {
         // Fetch all restaurants
-        DBHelper.fetchRestaurants((error, restaurants) => {
+        this.fetchRestaurants((error, restaurants) => {
             if (error) {
                 callback(error, null);
             } else {
@@ -152,7 +162,7 @@ class DBHelper {
      * Restaurant image URL.
      */
     static imageUrlForRestaurant(restaurant) {
-        const photograph = restaurant.photograph;
+        let photograph = restaurant.photograph;
         if (!photograph) {
             photograph = restaurant.id;
         }
