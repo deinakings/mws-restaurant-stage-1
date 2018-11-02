@@ -32,6 +32,10 @@ class DBHelper {
         });
     }
 
+    /**
+     * Fetch all restaurants and save them in IDB.
+     * @param {Function} callback - a callback function.
+     */
     fetchAndSaveRestaurants(callback) {
         let xhr = new XMLHttpRequest();
         xhr.open('GET', DBHelper.DATABASE_URL);

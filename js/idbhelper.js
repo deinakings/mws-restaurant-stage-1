@@ -14,6 +14,10 @@ class IDBHelper {
         });
     }
     
+    /**
+     * Save all restaurants to IDB.
+     * @returns {Promise} a promise.
+     */
     saveRestaurants(restaurants) {
         return this.dbPromise.then(db => {
             const tx = db.transaction('restaurants', 'readwrite');
@@ -25,6 +29,10 @@ class IDBHelper {
         });
     }
     
+    /**
+     * Get all restaurants from IDB.
+     * @returns {Promise} a promise.
+     */
     getRestaurants() {
         return this.dbPromise.then(db => {
             const tx = db.transaction('restaurants');
