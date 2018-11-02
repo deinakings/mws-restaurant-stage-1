@@ -1,31 +1,7 @@
-
-// const dbPromise = idb.open('mws-restaurant-idb', 1, upgradeDB => {
-//     // handle different versions of the db
-//     switch(upgradeDB.oldVersion) {
-//         case 0: 
-//             const keyValueStore = upgradeDB.createObjectStore('keyValueStore');
-//             keyValueStore.put('hellow', 'myKey');
-//         case 1: 
-//             const restaurantsStore = upgradeDB.createObjectStore('restaurants', {keyPath: 'id'});
-//     }
-   
-// });
-
-// dbPromise.then(db => {
-//     const transaction = db.transaction('keyValueStore');
-//     const keyValueStore = transaction.objectStore('keyValueStore');
-//     return keyValueStore.get('myKey');
-// }).then(value => console.log(value));
-
-// dbPromise.then(db => {
-//     const transaction = db.transaction('keyValueStore', 'readwrite');
-//     const keyValueStore = transaction.objectStore('keyValueStore');
-//     keyValueStore.put('myValue!?', 'secondKey');
-//     return transaction.complete;
-// })
-// .then(() => console.log('Successfully added "myValue" to db'))
-// .catch(err => console.log('It failed :( with error:', err));
-
+/**
+ * IndexedDB Helper.
+ */
+ 
 class IDBHelper {
     
     constructor() {
