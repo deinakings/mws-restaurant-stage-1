@@ -22,6 +22,17 @@ class DBHelper {
      * Fetch all restaurants.
      */
     fetchRestaurants(callback) {
+        this.idbHelper.getRestaurants().then(restaurants => {
+            if (restaurants) {
+                // if we have restaurants in the DB return them fist
+                callback(null, restaurants);
+            }
+            // then call the restaurants endpoint for updates.
+            this.fetchAndSaveRestaurants(callback);
+        });
+    }
+
+    fetchAndSaveRestaurants(callback) {
         let xhr = new XMLHttpRequest();
         xhr.open('GET', DBHelper.DATABASE_URL);
         xhr.onload = () => {
@@ -29,10 +40,7 @@ class DBHelper {
                 const json = JSON.parse(xhr.responseText);
                 const restaurants = json;
                 this.idbHelper.saveRestaurants(restaurants)
-                    .then(() => {
-                        console.log('restaurants saved to indexedDB!')
-                        this.idbHelper.getRestaurants().then(rest => console.log(rest));
-                    })
+                    .then(() => console.log('restaurants saved to indexedDB!'))
                     .catch(err => console.error('error saving to indexedDB:', err));
                 callback(null, restaurants);
             } else { // Oops!. Got an error from server.
