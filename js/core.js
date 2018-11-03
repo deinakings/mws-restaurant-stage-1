@@ -2,6 +2,8 @@
  * Core code to be shared by restaurant list and detail page.
  */
 let newServiceWorker;
+// create db helper
+let dbHelper = new DBHelper();
 
 /**
  * Register the service worker.

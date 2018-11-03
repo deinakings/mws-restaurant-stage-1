@@ -9,6 +9,8 @@ const cacheUrls = [
     '/css/styles.css',
     '/js/core.js',
     '/js/dbhelper.js',
+    '/js/idbhelper.js',
+    '/js/idb.js',
     '/js/main.js',
     '/js/restaurant_info.js',
     '/data/restaurants.json',
