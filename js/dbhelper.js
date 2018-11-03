@@ -12,9 +12,9 @@ class DBHelper {
      * Change this to restaurants.json file location on your server.
      */
     static get DATABASE_URL() {
-        const port = 8080 // Change this to your server port
-        const domain = 'mws-restaurant-stage-2-deinakings.c9users.io';
-        const protocol = 'https';
+        const port = 1337 // Change this to your server port
+        const domain = 'localhost';
+        const protocol = 'http';
         return `${protocol}://${domain}:${port}/restaurants`;
     }
 

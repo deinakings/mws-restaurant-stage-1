@@ -10,7 +10,7 @@ const cacheUrls = [
     '/js/core.js',
     '/js/dbhelper.js',
     '/js/idbhelper.js',
-    '/node_modules/idb/lib/idb.js',
+    '/js/idb.js',
     '/js/main.js',
     '/js/restaurant_info.js',
     '/data/restaurants.json',
