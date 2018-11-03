@@ -1,3 +1,10 @@
+/**
+ * This file is a library to use indexedDB with Promises.
+ * The script was copied from https://github.com/jakearchibald/idb
+ * but not not modified.
+ * Node: This is not code of my own and was not modified from the original
+ * library.
+ */
 'use strict';
 
 (function() {
