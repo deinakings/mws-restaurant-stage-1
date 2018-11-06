@@ -26,9 +26,12 @@ class DBHelper {
             if (restaurants) {
                 // if we have restaurants in the DB return them fist
                 callback(null, restaurants);
+                // then call the restaurants endpoint for updates.
+                this.fetchAndSaveRestaurants();
+            } else {
+                // if there is no data in DB call the restaurants endpoint.
+                this.fetchAndSaveRestaurants(callback);
             }
-            // then call the restaurants endpoint for updates.
-            this.fetchAndSaveRestaurants(callback);
         });
     }
 
@@ -46,10 +49,14 @@ class DBHelper {
                 this.idbHelper.saveRestaurants(restaurants)
                     .then(() => console.log('restaurants saved to indexedDB!'))
                     .catch(err => console.error('error saving to indexedDB:', err));
-                callback(null, restaurants);
+                if (callback) {
+                    callback(null, restaurants);
+                }
             } else { // Oops!. Got an error from server.
                 const error = (`Request failed. Returned status of ${xhr.status}`);
-                callback(error, null);
+                if (callback) {
+                    callback(error, null);
+                }
             }
         };
         xhr.send();

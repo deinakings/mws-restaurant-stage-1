@@ -2,7 +2,7 @@
  * Service Worker code.
  */
 const imageCacheName = 'mws-restaurant-images-v1';
-const cacheName = 'mws-restaurant-v1';
+const cacheName = 'mws-restaurant-v2';
 const cacheUrls = [
     '/',
     '/restaurant.html',
