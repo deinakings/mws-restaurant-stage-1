@@ -15,7 +15,7 @@ class DBHelper {
         const port = 1337 // Change this to your server port
         const domain = 'localhost';
         const protocol = 'http';
-        return `${protocol}://${domain}:${port}/restaurants`;
+        return `${protocol}://${domain}:${port}`;
     }
 
     /**
@@ -41,7 +41,7 @@ class DBHelper {
      */
     fetchAndSaveRestaurants(callback) {
         let xhr = new XMLHttpRequest();
-        xhr.open('GET', DBHelper.DATABASE_URL);
+        xhr.open('GET', `${DBHelper.DATABASE_URL}/restaurants`);
         xhr.onload = () => {
             if (xhr.status === 200) { // Got a success response from server!
                 const json = JSON.parse(xhr.responseText);
@@ -73,7 +73,15 @@ class DBHelper {
             } else {
                 const restaurant = restaurants.find(r => r.id == id);
                 if (restaurant) { // Got the restaurant
-                    callback(null, restaurant);
+                    this.getReviews(restaurant.id)
+                        .then(response => {
+                            restaurant.reviews = response;
+                            callback(null, restaurant);
+                        })
+                        .catch(err => {
+                            console.error('Error getting reviews: ', err);
+                            callback(null, restaurant);
+                        });
                 } else { // Restaurant does not exist in the database
                     callback('Restaurant does not exist', null);
                 }
@@ -224,7 +232,7 @@ class DBHelper {
         // update local db
         this.updateRestaurant(restaurant);
         return fetch(
-            `http://localhost:1337/restaurants/${restaurant.id}/?is_favorite=${restaurant['is_favorite']}`,
+            `${DBHelper.DATABASE_URL}/restaurants/${restaurant.id}/?is_favorite=${restaurant['is_favorite']}`,
             { method: 'PUT' }
         ).then()
         .catch(err => {
@@ -233,13 +241,57 @@ class DBHelper {
         });
     }
 
+    /**
+     * Add a restaurant review
+     * @param {Object} review 
+     * @returns {Promise} a promise.
+     */
     addReview(review) {
-        return fetch('http://localhost:1337/reviews/',
+        `${DBHelper.DATABASE_URL}/restaurants`
+        
+        return fetch(`${DBHelper.DATABASE_URL}/reviews/`,
             {
                 method: 'POST',
                 body: JSON.stringify(review)
             }
         );
+    }
+
+    /**
+     * Get the reviews for a restaurant.
+     * First return the local idb copy and then
+     * updates with the call to the services.
+     * @param {object} restaurantId 
+     * @returns {Promise} a promise.
+     */
+    getReviews(restaurantId) {
+        return this.idbHelper.getReviews(restaurantId)
+            .then(response => {
+                if (response) {
+                    // call real endpoint to get updated data
+                    // and save it
+                    this.getReviewsByRestaurant(restaurantId);
+                    return response.reviews;
+                } else {
+                    // there is no data in idb so call to get updated data.
+                    return this.getReviewsByRestaurant(restaurantId);
+                }
+            });
+    }
+
+    /**
+     * Get reviews by restaurant.
+     * @param {string} restaurantId 
+     * @returns {Promise} a promise.
+     */
+    getReviewsByRestaurant(restaurantId) {
+        return fetch(`${DBHelper.DATABASE_URL}/reviews/?restaurant_id=${restaurantId}`)
+            .then(response => response.json())
+            .then(response => {
+                this.idbHelper.saveReviewsByRestaurant(restaurantId, response);
+                return response;
+            })
+            .catch(err => console.error('There was an error getting reviews: ', err));
     }
 
     /* static mapMarkerForRestaurant(restaurant, map) {
