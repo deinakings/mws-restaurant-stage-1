@@ -178,8 +178,6 @@ createRestaurantHTML = (restaurant) => {
         } else {
             event.target.classList.remove('favorite');
         }
-        // @TODO make post call
-        // @TODO if error revert state
         dbHelper.updateFavorite(restaurant);
     });
     li.append(favoriteIcon);

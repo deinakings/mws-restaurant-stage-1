@@ -37,10 +37,6 @@ if ('serviceWorker' in navigator) {
         navigator.serviceWorker.addEventListener('controllerchange', event => {
             window.location.reload();
         });
-
-        // navigator.serviceWorker.ready.then((swRegistration) => {
-        //     return swRegistration.sync.register('reviews-and-favorites');
-        // });
     });
 }
 

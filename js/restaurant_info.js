@@ -226,8 +226,6 @@ document.getElementById('favorite-icon').addEventListener('click', event => {
     } else {
         event.target.classList.remove('favorite');
     }
-    // @TODO make post call
-    // @TODO if error revert state
     dbHelper.updateFavorite(self.restaurant);
 });
 

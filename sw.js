@@ -2,7 +2,7 @@
  * Service Worker code.
  */
 self.importScripts('/js/idb.js', '/js/idbhelper.js', '/js/dbhelper.js');
-let dbHelper = new DBHelper();//
+let dbHelper = new DBHelper();
 const imageCacheName = 'mws-restaurant-images-v1';
 const cacheName = 'mws-restaurant-v2';
 const cacheUrls = [

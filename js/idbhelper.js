@@ -90,6 +90,11 @@ class IDBHelper {
         });
     }
     
+    /**
+     * Add reviews to an update list.
+     * @param {object} review 
+     * @returns {Promise} a promise.
+     */
     addReviewToUpdateList(review) {
         return this.dbPromise.then(db => {
             const tx = db.transaction('reviews-to-update', 'readwrite');
@@ -99,6 +104,10 @@ class IDBHelper {
         });
     }
 
+    /**
+     * Get all reviews from update list.
+     * @returns {Promise} a promise.
+     */
     getReviewUpdateList() {
         return this.dbPromise.then(db => {
             const tx = db.transaction('reviews-to-update');
@@ -107,6 +116,11 @@ class IDBHelper {
         });
     }
 
+    /**
+     * Remove a review from update list.
+     * @param {object} reivew 
+     * @returns {Promise} a promise.
+     */
     removeReviewFromUpdateList(reivew) {
         return this.dbPromise.then(db => {
             const tx = db.transaction('reviews-to-update', 'readwrite');
@@ -116,6 +130,11 @@ class IDBHelper {
         });
     }
 
+    /**
+     * Add a favorite to the update list.
+     * @param {object} restaurant 
+     * @returns {Promise} a promise.
+     */
     addFavoriteToUpdateList(restaurant) {
         return this.dbPromise.then(db => {
             const tx = db.transaction('favorites-to-update', 'readwrite');
@@ -125,6 +144,10 @@ class IDBHelper {
         });
     }
 
+    /**
+     * get all favorites from update list.
+     * @returns {Promise} a promise.
+     */
     getFavoritesUpdateList() {
         return this.dbPromise.then(db => {
             const tx = db.transaction('favorites-to-update');
@@ -133,6 +156,11 @@ class IDBHelper {
         });
     }
 
+    /**
+     * Remove a favorite from the update list.
+     * @param {object} restaurant
+     * @returns {Promise} a promise.
+     */
     removeReviewFromUpdateList(restaurant) {
         return this.dbPromise.then(db => {
             const tx = db.transaction('favorites-to-update', 'readwrite');

@@ -235,6 +235,10 @@ class DBHelper {
         regServiceWorker.sync.register('put-favorites');
     }
 
+    /**
+     * Add all favorites in the idb update list.
+     * @returns {Promise} a promise.
+     */
     putFavorites() {
         let promises = [];
         return this.idbHelper.getFavoritesUpdateList()
@@ -252,6 +256,12 @@ class DBHelper {
                 return Promise.all(promises);
             });
     }
+
+    /**
+     * Does the PUT call to add a favorite.
+     * @param {Object} restaurant 
+     * @returns {Promise} a promise.
+     */
     putFavorite(restaurant) {
         return fetch(
             `${DBHelper.DATABASE_URL}/restaurants/${restaurant.id}/?is_favorite=${restaurant['is_favorite']}`,
@@ -259,6 +269,11 @@ class DBHelper {
         );
     }
 
+    /**
+     * Add a Review
+     * @param {object} review 
+     * @returns {Promise} a promise.
+     */
     addReview(review) {
         const restaurantId = Number(review['restaurant_id']);
         review.updatedAt = new Date().getTime();
@@ -274,6 +289,10 @@ class DBHelper {
         
     }
 
+    /**
+     * Post all reviews to backend.
+     * @returns {Promise} a promise.
+     */
     postReviews() {
         let promises = [];
         return this.idbHelper.getReviewUpdateList()
