@@ -91,6 +91,15 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
     image.src = DBHelper.imageUrlForRestaurant(restaurant);
     image.alt = "Image of the restaurant " + restaurant.name;
 
+    const favoriteIcon = document.getElementById('favorite-icon');
+    if (stringToBoolean(restaurant['is_favorite'])) {
+        favoriteIcon.classList.add('favorite');
+        favoriteIcon.setAttribute('aria-label', `Remove from favorites restaurant ${restaurant.name}`);
+    } else {
+        favoriteIcon.classList.remove('favorite');
+        favoriteIcon.setAttribute('aria-label', `Add to favorites restaurant ${restaurant.name}`);
+    }
+
     const cuisine = document.getElementById('restaurant-cuisine');
     cuisine.innerHTML = restaurant.cuisine_type;
 
@@ -203,3 +212,18 @@ getParameterByName = (name, url) => {
         return '';
     return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
+
+// add listener for favorite icon
+document.getElementById('favorite-icon').addEventListener('click', event => {
+    const isFavorite = stringToBoolean(self.restaurant['is_favorite'])
+    self.restaurant['is_favorite'] = !isFavorite;
+
+    if (self.restaurant['is_favorite']) {
+        event.target.classList.add('favorite');
+    } else {
+        event.target.classList.remove('favorite');
+    }
+    // @TODO make post call
+    // @TODO if error revert state
+    dbHelper.updateFavorite(self.restaurant);
+});

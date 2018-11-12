@@ -28,6 +28,19 @@ class IDBHelper {
             return tx.complete;
         });
     }
+
+    /**
+     * Save a restaurants to IDB.
+     * @returns {Promise} a promise.
+     */
+    updateRestaurant(restaurant) {
+        return this.dbPromise.then(db => {
+            const tx = db.transaction('restaurants', 'readwrite');
+            const restaurantsStore = tx.objectStore('restaurants');
+            restaurantsStore.put(restaurant);
+            return tx.complete;
+        });
+    }
     
     /**
      * Get all restaurants from IDB.

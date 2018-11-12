@@ -202,6 +202,37 @@ class DBHelper {
         marker.addTo(newMap);
         return marker;
     }
+
+    /**
+     * update a restaurant to idb
+     * @param {object} restaurant
+     * @returns {Promise} a promise.
+     */
+    updateRestaurant(restaurant) {
+        // update local db
+        return this.idbHelper.updateRestaurant(restaurant)
+            .then(() => console.log('restaurant updated'))
+            .catch(err => console.log('error while updating the restaurant', err));
+    }
+
+    /**
+     * Update favorite state of a restaurant.
+     * @param {object} restaurant 
+     * @returns {Promise} a promise.
+     */
+    updateFavorite(restaurant) {
+        // update local db
+        this.updateRestaurant(restaurant);
+        return fetch(
+            `http://localhost:1337/restaurants/${restaurant.id}/?is_favorite=${restaurant['is_favorite']}`,
+            { method: 'PUT' }
+        ).then()
+        .catch(err => {
+            //@TODO: if offline retry when offline.
+            //@TODO: if other error remove from cache.
+        });
+    }
+
     /* static mapMarkerForRestaurant(restaurant, map) {
       const marker = new google.maps.Marker({
         position: restaurant.latlng,
@@ -212,5 +243,4 @@ class DBHelper {
       );
       return marker;
     } */
-
 }

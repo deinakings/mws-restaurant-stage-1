@@ -231,6 +231,27 @@ nav h1 a {
     min-width: 100%;
 }
 
+.restaurant-element {
+    position: relative;
+}
+
+.restaurant-element .favorite-icon {
+    color: gold;
+    font-size: 25px;
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    cursor: pointer;
+}
+
+.restaurant-element .favorite-icon::before {
+    content: '\2606';
+}
+
+.restaurant-element .favorite-icon.favorite::before {
+    content: '\2605';
+}
+
 #restaurants-list li h2 {
     color: #f18200;
     font-family: Arial, sans-serif;

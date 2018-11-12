@@ -104,3 +104,12 @@ workerUpdateListener = () => {
 document.addEventListener('DOMContentLoaded', (event) => {
     createUpdateMessage();
 });
+
+/**
+ * Converts a string into boolean
+ */
+stringToBoolean = (value) => {
+    return typeof value === 'string' ?
+        value === 'true' :
+        value;
+};
