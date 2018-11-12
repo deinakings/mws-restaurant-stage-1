@@ -231,6 +231,27 @@ nav h1 a {
     min-width: 100%;
 }
 
+.restaurant-element {
+    position: relative;
+}
+
+.restaurant-element .favorite-icon {
+    color: gold;
+    font-size: 25px;
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    cursor: pointer;
+}
+
+.restaurant-element .favorite-icon::before {
+    content: '\2606';
+}
+
+.restaurant-element .favorite-icon.favorite::before {
+    content: '\2605';
+}
+
 #restaurants-list li h2 {
     color: #f18200;
     font-family: Arial, sans-serif;
@@ -395,6 +416,51 @@ nav h1 a {
     color: #666;
 }
 
+.button-text {
+    visibility: hidden;
+}
+
+/* Form styles */
+#add-review-container h2 {
+    color: #f58500;
+    font-size: 24pt;
+    font-weight: 300;
+    letter-spacing: -1px;
+    padding-bottom: 1pt;
+}
+#add-review-container form {
+    padding: 30px 40px 50px;
+}
+#add-review-container .form-element {
+    display: flex;
+    margin: 5px 0;
+}
+#add-review-container .form-element-submit {
+    text-align: right;
+}
+#add-review-container .form-element-submit input {
+    width: 100px;
+    height: 35px;
+    background-color: #f58500;
+    color: white;
+    border-radius: 3px;
+}
+#add-review-container .form-element > label {
+    text-align: right;
+    display: flex;
+    flex: .5;
+    justify-content: flex-end;
+    padding: 5px;
+}
+
+#add-review-container .form-element > input,
+#add-review-container .form-element > textarea {
+    display: flex;
+    flex: 1;
+    padding: 5px;
+}
+
+
 /* ================== tablet ====================== */
 
 @media screen and (min-width: 768px) {
@@ -434,6 +500,10 @@ nav h1 a {
         height: calc(100vh - 196px);
         overflow: scroll;
         margin-top: 131px;
+    }
+
+    #add-review-container .form-element > label {
+        flex: .6;
     }
 }
 

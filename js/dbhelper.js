@@ -15,7 +15,7 @@ class DBHelper {
         const port = 1337 // Change this to your server port
         const domain = 'localhost';
         const protocol = 'http';
-        return `${protocol}://${domain}:${port}/restaurants`;
+        return `${protocol}://${domain}:${port}`;
     }
 
     /**
@@ -23,7 +23,7 @@ class DBHelper {
      */
     fetchRestaurants(callback) {
         this.idbHelper.getRestaurants().then(restaurants => {
-            if (restaurants) {
+            if (restaurants && restaurants.length > 0) {
                 // if we have restaurants in the DB return them fist
                 callback(null, restaurants);
                 // then call the restaurants endpoint for updates.
@@ -41,7 +41,7 @@ class DBHelper {
      */
     fetchAndSaveRestaurants(callback) {
         let xhr = new XMLHttpRequest();
-        xhr.open('GET', DBHelper.DATABASE_URL);
+        xhr.open('GET', `${DBHelper.DATABASE_URL}/restaurants`);
         xhr.onload = () => {
             if (xhr.status === 200) { // Got a success response from server!
                 const json = JSON.parse(xhr.responseText);
@@ -73,7 +73,15 @@ class DBHelper {
             } else {
                 const restaurant = restaurants.find(r => r.id == id);
                 if (restaurant) { // Got the restaurant
-                    callback(null, restaurant);
+                    this.getReviews(restaurant.id)
+                        .then(response => {
+                            restaurant.reviews = response;
+                            callback(null, restaurant);
+                        })
+                        .catch(err => {
+                            console.error('Error getting reviews: ', err);
+                            callback(null, restaurant);
+                        });
                 } else { // Restaurant does not exist in the database
                     callback('Restaurant does not exist', null);
                 }
@@ -202,6 +210,155 @@ class DBHelper {
         marker.addTo(newMap);
         return marker;
     }
+
+    /**
+     * update a restaurant to idb
+     * @param {object} restaurant
+     * @returns {Promise} a promise.
+     */
+    updateRestaurant(restaurant) {
+        // update local db
+        return this.idbHelper.updateRestaurant(restaurant)
+            .then(() => console.log('restaurant updated'))
+            .catch(err => console.log('error while updating the restaurant', err));
+    }
+
+    /**
+     * Update favorite state of a restaurant.
+     * @param {object} restaurant 
+     * @returns {Promise} a promise.
+     */
+    updateFavorite(restaurant) {
+        // update local db
+        this.updateRestaurant(restaurant);
+        this.idbHelper.addFavoriteToUpdateList(restaurant);
+        regServiceWorker.sync.register('put-favorites');
+    }
+
+    /**
+     * Add all favorites in the idb update list.
+     * @returns {Promise} a promise.
+     */
+    putFavorites() {
+        let promises = [];
+        return this.idbHelper.getFavoritesUpdateList()
+            .then(restaurants => {
+                if (restaurants) {
+                    restaurants.forEach(restaurant => {
+                        promises.push(this.putFavorite(restaurant)
+                            .then(response => {
+                                this.idbHelper.removeReviewFromUpdateList(restaurant);
+                                return response;
+                            })
+                        );
+                    });
+                }
+                return Promise.all(promises);
+            });
+    }
+
+    /**
+     * Does the PUT call to add a favorite.
+     * @param {Object} restaurant 
+     * @returns {Promise} a promise.
+     */
+    putFavorite(restaurant) {
+        return fetch(
+            `${DBHelper.DATABASE_URL}/restaurants/${restaurant.id}/?is_favorite=${restaurant['is_favorite']}`,
+            { method: 'PUT' }
+        );
+    }
+
+    /**
+     * Add a Review
+     * @param {object} review 
+     * @returns {Promise} a promise.
+     */
+    addReview(review) {
+        const restaurantId = Number(review['restaurant_id']);
+        review.updatedAt = new Date().getTime();
+        return this.idbHelper.getReviews(restaurantId)
+            .then(reviewObj => {
+                const reviews = (reviewObj && reviewObj.reviews) || [];
+                reviews.push(review);
+                this.idbHelper.saveReviewsByRestaurant(restaurantId, reviews);
+                this.idbHelper.addReviewToUpdateList(review);
+                regServiceWorker.sync.register('post-reviews');
+                return review;
+            });      
+        
+    }
+
+    /**
+     * Post all reviews to backend.
+     * @returns {Promise} a promise.
+     */
+    postReviews() {
+        let promises = [];
+        return this.idbHelper.getReviewUpdateList()
+            .then(reviews => {
+                reviews.forEach(review => {
+                    promises.push(this.postReview(review)
+                        .then(response => {
+                            this.idbHelper.removeReviewFromUpdateList(review);
+                            return response;
+                        })
+                    );
+                });
+                return Promise.all(promises);
+            });
+    }
+    /**
+     * Add a restaurant review
+     * @param {Object} review 
+     * @returns {Promise} a promise.
+     */
+    postReview(review) {        
+        return fetch(`${DBHelper.DATABASE_URL}/reviews/`,
+            {
+                method: 'POST',
+                body: JSON.stringify(review)
+            })
+            .then(response => response.json());
+    }
+
+    /**
+     * Get the reviews for a restaurant.
+     * First return the local idb copy and then
+     * updates with the call to the services.
+     * @param {object} restaurantId 
+     * @returns {Promise} a promise.
+     */
+    getReviews(restaurantId) {
+        return this.idbHelper.getReviews(restaurantId)
+            .then(response => {
+                if (response) {
+                    // call real endpoint to get updated data
+                    // and save it
+                    this.getReviewsByRestaurant(restaurantId);
+                    return response.reviews;
+                } else {
+                    // there is no data in idb so call to get updated data.
+                    return this.getReviewsByRestaurant(restaurantId);
+                }
+            });
+    }
+
+    /**
+     * Get reviews by restaurant.
+     * @param {string} restaurantId 
+     * @returns {Promise} a promise.
+     */
+    getReviewsByRestaurant(restaurantId) {
+        return fetch(`${DBHelper.DATABASE_URL}/reviews/?restaurant_id=${restaurantId}`)
+            .then(response => response.json())
+            .then(response => {
+                this.idbHelper.saveReviewsByRestaurant(restaurantId, response);
+                return response;
+            })
+            .catch(err => console.error('There was an error getting reviews: ', err));
+    }
+
     /* static mapMarkerForRestaurant(restaurant, map) {
       const marker = new google.maps.Marker({
         position: restaurant.latlng,
@@ -212,5 +369,4 @@ class DBHelper {
       );
       return marker;
     } */
-
 }

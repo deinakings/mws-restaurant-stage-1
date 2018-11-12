@@ -80,6 +80,9 @@ fetchRestaurantFromURL = (callback) => {
  * Create restaurant HTML and add it to the webpage
  */
 fillRestaurantHTML = (restaurant = self.restaurant) => {
+    const formId = document.getElementById('restaurant_id');
+    formId.setAttribute('value', restaurant.id);
+
     const name = document.getElementById('restaurant-name');
     name.innerHTML = restaurant.name;
 
@@ -90,6 +93,15 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
     image.className = 'restaurant-img'
     image.src = DBHelper.imageUrlForRestaurant(restaurant);
     image.alt = "Image of the restaurant " + restaurant.name;
+
+    const favoriteIcon = document.getElementById('favorite-icon');
+    if (stringToBoolean(restaurant['is_favorite'])) {
+        favoriteIcon.classList.add('favorite');
+        favoriteIcon.setAttribute('aria-label', `Remove from favorites restaurant ${restaurant.name}`);
+    } else {
+        favoriteIcon.classList.remove('favorite');
+        favoriteIcon.setAttribute('aria-label', `Add to favorites restaurant ${restaurant.name}`);
+    }
 
     const cuisine = document.getElementById('restaurant-cuisine');
     cuisine.innerHTML = restaurant.cuisine_type;
@@ -157,7 +169,7 @@ createReviewHTML = (review) => {
     reviewHeader.appendChild(name);
 
     const date = document.createElement('p');
-    date.innerHTML = review.date;
+    date.innerHTML = new Date(review.updatedAt).toDateString();
     date.className = 'date';
     reviewHeader.appendChild(date);
 
@@ -203,3 +215,34 @@ getParameterByName = (name, url) => {
         return '';
     return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
+
+// add listener for favorite icon
+document.getElementById('favorite-icon').addEventListener('click', event => {
+    const isFavorite = stringToBoolean(self.restaurant['is_favorite'])
+    self.restaurant['is_favorite'] = !isFavorite;
+
+    if (self.restaurant['is_favorite']) {
+        event.target.classList.add('favorite');
+    } else {
+        event.target.classList.remove('favorite');
+    }
+    dbHelper.updateFavorite(self.restaurant);
+});
+
+document.getElementById('add-review-button').addEventListener('click', event => {
+    event.preventDefault();
+    const form = document.getElementById('review-form');
+    const formElements = form.elements;
+    const newReview = {
+        'restaurant_id': formElements['restaurant_id'].value,
+        'name': formElements['name'].value,
+        'rating': formElements['rating'].value,
+        'comments': formElements['comments'].value     
+    }
+    dbHelper.addReview(newReview).then(response => {
+        form.reset();
+        self.restaurant.reviews = self.restaurant.reviews || [];
+        self.restaurant.reviews.push(response);
+        fillReviewsHTML([response]); // add new review to html
+    });
+});

@@ -2,6 +2,7 @@
  * Core code to be shared by restaurant list and detail page.
  */
 let newServiceWorker;
+let regServiceWorker;
 // create db helper
 let dbHelper = new DBHelper();
 
@@ -12,6 +13,7 @@ if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
         navigator.serviceWorker.register('/sw.js')
             .then(reg => {
+                regServiceWorker = reg;
                 console.log('Registration worked!');
                 // page was not loaded with a service worker
                 // it was loaded from network.
@@ -104,3 +106,12 @@ workerUpdateListener = () => {
 document.addEventListener('DOMContentLoaded', (event) => {
     createUpdateMessage();
 });
+
+/**
+ * Converts a string into boolean
+ */
+stringToBoolean = (value) => {
+    return typeof value === 'string' ?
+        value === 'true' :
+        value;
+};

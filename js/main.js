@@ -157,6 +157,30 @@ fillRestaurantsHTML = (restaurants = self.restaurants) => {
  */
 createRestaurantHTML = (restaurant) => {
     const li = document.createElement('li');
+    li.className = `restaurant-element`;
+
+    const favoriteIcon = document.createElement('div');
+    favoriteIcon.className = 'favorite-icon';
+    if (stringToBoolean(restaurant['is_favorite'])) {
+        favoriteIcon.classList.add('favorite');
+        favoriteIcon.setAttribute('aria-label', `Remove from favorites restaurant ${restaurant.name}`);
+    } else {
+        favoriteIcon.classList.remove('favorite');
+        favoriteIcon.setAttribute('aria-label', `Add to favorites restaurant ${restaurant.name}`);
+    }
+    
+    favoriteIcon.setAttribute('role', 'button');
+    favoriteIcon.addEventListener('click', event => {
+        const isFavorite = stringToBoolean(restaurant['is_favorite']);
+        restaurant['is_favorite'] = !isFavorite;
+        if (restaurant['is_favorite']) {
+            event.target.classList.add('favorite');
+        } else {
+            event.target.classList.remove('favorite');
+        }
+        dbHelper.updateFavorite(restaurant);
+    });
+    li.append(favoriteIcon);
 
     const image = document.createElement('img');
     image.className = 'restaurant-img';
