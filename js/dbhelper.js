@@ -233,6 +233,15 @@ class DBHelper {
         });
     }
 
+    addReview(review) {
+        return fetch('http://localhost:1337/reviews/',
+            {
+                method: 'POST',
+                body: JSON.stringify(review)
+            }
+        );
+    }
+
     /* static mapMarkerForRestaurant(restaurant, map) {
       const marker = new google.maps.Marker({
         position: restaurant.latlng,

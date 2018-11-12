@@ -80,6 +80,9 @@ fetchRestaurantFromURL = (callback) => {
  * Create restaurant HTML and add it to the webpage
  */
 fillRestaurantHTML = (restaurant = self.restaurant) => {
+    const formId = document.getElementById('restaurant_id');
+    formId.setAttribute('value', restaurant.id);
+
     const name = document.getElementById('restaurant-name');
     name.innerHTML = restaurant.name;
 
@@ -226,4 +229,20 @@ document.getElementById('favorite-icon').addEventListener('click', event => {
     // @TODO make post call
     // @TODO if error revert state
     dbHelper.updateFavorite(self.restaurant);
+});
+
+document.getElementById('add-review-button').addEventListener('click', event => {
+    event.preventDefault();
+    const form = document.getElementById('review-form');
+    const formElements = form.elements;
+    const newReview = {
+        'restaurant_id': formElements['restaurant_id'].value,
+        'name': formElements['name'].value,
+        'rating': formElements['rating'].value,
+        'comments': formElements['comments'].value     
+    }
+    dbHelper.addReview(newReview).then(() => {
+        form.reset();
+    });
+    console.log(event);
 });
