@@ -1,6 +1,8 @@
 /**
  * Service Worker code.
  */
+self.importScripts('/js/idb.js', '/js/idbhelper.js', '/js/dbhelper.js');
+let dbHelper = new DBHelper();//
 const imageCacheName = 'mws-restaurant-images-v1';
 const cacheName = 'mws-restaurant-v2';
 const cacheUrls = [
@@ -54,10 +56,10 @@ self.addEventListener('fetch', event => {
 
     // if an image is not in the cache fetch it and cache it.
     if (isImage(requestUrl.pathname)) {
-            event.respondWith(
-                caches.match(event.request)
-                    .then(response => response || addToImageCache(event.request))
-            );
+        event.respondWith(
+            caches.match(event.request)
+                .then(response => response || addToImageCache(event.request))
+        );
     }
     else if (requestUrl.pathname === '/restaurant.html') {
         event.respondWith(
@@ -77,6 +79,16 @@ self.addEventListener('message', event => {
     // we skipWaiting to activate the new service worker.
     if (event.data && event.data.skipWaiting) {
         self.skipWaiting();
+    }
+});
+
+self.addEventListener('sync', event => {
+    debugger;
+    if (event.tag == 'post-reviews') {
+        event.waitUntil(dbHelper.postReviews());
+    }
+    if (event.tag == 'put-favorites') {
+        event.waitUntil(dbHelper.putFavorites());
     }
 });
 
@@ -102,6 +114,6 @@ addToImageCache = request => {
  */
 isImage = url => {
     return url.endsWith('.jpg') ||
-    url.endsWith('.jpg70') ||
-    url.endsWith('.png');
+        url.endsWith('.jpg70') ||
+        url.endsWith('.png');
 };

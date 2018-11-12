@@ -23,7 +23,7 @@ class DBHelper {
      */
     fetchRestaurants(callback) {
         this.idbHelper.getRestaurants().then(restaurants => {
-            if (restaurants) {
+            if (restaurants && restaurants.length > 0) {
                 // if we have restaurants in the DB return them fist
                 callback(null, restaurants);
                 // then call the restaurants endpoint for updates.
@@ -231,40 +231,76 @@ class DBHelper {
     updateFavorite(restaurant) {
         // update local db
         this.updateRestaurant(restaurant);
+        this.idbHelper.addFavoriteToUpdateList(restaurant);
+        regServiceWorker.sync.register('put-favorites');
+    }
+
+    putFavorites() {
+        let promises = [];
+        return this.idbHelper.getFavoritesUpdateList()
+            .then(restaurants => {
+                if (restaurants) {
+                    restaurants.forEach(restaurant => {
+                        promises.push(this.putFavorite(restaurant)
+                            .then(response => {
+                                this.idbHelper.removeReviewFromUpdateList(restaurant);
+                                return response;
+                            })
+                        );
+                    });
+                }
+                return Promise.all(promises);
+            });
+    }
+    putFavorite(restaurant) {
         return fetch(
             `${DBHelper.DATABASE_URL}/restaurants/${restaurant.id}/?is_favorite=${restaurant['is_favorite']}`,
             { method: 'PUT' }
-        ).then()
-        .catch(err => {
-            //@TODO: if offline retry when offline.
-            //@TODO: if other error remove from cache.
-        });
+        );
     }
 
+    addReview(review) {
+        const restaurantId = Number(review['restaurant_id']);
+        review.updatedAt = new Date().getTime();
+        return this.idbHelper.getReviews(restaurantId)
+            .then(reviewObj => {
+                const reviews = (reviewObj && reviewObj.reviews) || [];
+                reviews.push(review);
+                this.idbHelper.saveReviewsByRestaurant(restaurantId, reviews);
+                this.idbHelper.addReviewToUpdateList(review);
+                regServiceWorker.sync.register('post-reviews');
+                return review;
+            });      
+        
+    }
+
+    postReviews() {
+        let promises = [];
+        return this.idbHelper.getReviewUpdateList()
+            .then(reviews => {
+                reviews.forEach(review => {
+                    promises.push(this.postReview(review)
+                        .then(response => {
+                            this.idbHelper.removeReviewFromUpdateList(review);
+                            return response;
+                        })
+                    );
+                });
+                return Promise.all(promises);
+            });
+    }
     /**
      * Add a restaurant review
      * @param {Object} review 
      * @returns {Promise} a promise.
      */
-    addReview(review) {
-        `${DBHelper.DATABASE_URL}/restaurants`
-        
+    postReview(review) {        
         return fetch(`${DBHelper.DATABASE_URL}/reviews/`,
             {
                 method: 'POST',
                 body: JSON.stringify(review)
             })
-            .then(response => response.json())
-            .then(response => {
-                const restaurantId = Number(response['restaurant_id']);
-                this.idbHelper.getReviews(restaurantId)
-                    .then(reviewObj => {
-                        const reviews = reviewObj.reviews || [];
-                        reviews.push(response);
-                        this.idbHelper.saveReviewsByRestaurant(restaurantId, reviews);
-                    });
-                return response;
-            });
+            .then(response => response.json());
     }
 
     /**

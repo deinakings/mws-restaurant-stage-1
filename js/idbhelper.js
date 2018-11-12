@@ -6,12 +6,17 @@ class IDBHelper {
     
     constructor() {
         //open db here
-        this.dbPromise = idb.open('mws-restaurant-idb', 2, upgradeDB => {
+        this.dbPromise = idb.open('mws-restaurant-idb', 4, upgradeDB => {
             switch(upgradeDB.oldVersion) {
                 case 0:
                     const restaurantsStore = upgradeDB.createObjectStore('restaurants', {keyPath: 'id'});
                 case 1:
                     const reviewsStore = upgradeDB.createObjectStore('reviews', {keyPath: 'restaurantId'});
+                case 2:
+                    const reviewsToUpdateStore = upgradeDB.createObjectStore('reviews-to-update', {keyPath: 'updatedAt'});
+                case 3:
+                    const favoritesToUpdateStore = upgradeDB.createObjectStore('favorites-to-update', {keyPath: 'id'});
+                    
             }
         });
     }
@@ -85,4 +90,55 @@ class IDBHelper {
         });
     }
     
+    addReviewToUpdateList(review) {
+        return this.dbPromise.then(db => {
+            const tx = db.transaction('reviews-to-update', 'readwrite');
+            const reviewsToUpdateStore = tx.objectStore('reviews-to-update');
+            reviewsToUpdateStore.put(review);
+            return tx.complete;
+        });
+    }
+
+    getReviewUpdateList() {
+        return this.dbPromise.then(db => {
+            const tx = db.transaction('reviews-to-update');
+            const reviewsToUpdateStore = tx.objectStore('reviews-to-update');
+            return reviewsToUpdateStore.getAll();
+        });
+    }
+
+    removeReviewFromUpdateList(reivew) {
+        return this.dbPromise.then(db => {
+            const tx = db.transaction('reviews-to-update', 'readwrite');
+            const reviewsToUpdateStore = tx.objectStore('reviews-to-update');
+            reviewsToUpdateStore.delete(reivew.updatedAt);
+            return tx.complete;
+        });
+    }
+
+    addFavoriteToUpdateList(restaurant) {
+        return this.dbPromise.then(db => {
+            const tx = db.transaction('favorites-to-update', 'readwrite');
+            const reviewsToUpdateStore = tx.objectStore('favorites-to-update');
+            reviewsToUpdateStore.put(restaurant);
+            return tx.complete;
+        });
+    }
+
+    getFavoritesUpdateList() {
+        return this.dbPromise.then(db => {
+            const tx = db.transaction('favorites-to-update');
+            const favoritesToUpdateStore = tx.objectStore('favorites-to-update');
+            return favoritesToUpdateStore.getAll();
+        });
+    }
+
+    removeReviewFromUpdateList(restaurant) {
+        return this.dbPromise.then(db => {
+            const tx = db.transaction('favorites-to-update', 'readwrite');
+            const favoritesToUpdateStore = tx.objectStore('favorites-to-update');
+            favoritesToUpdateStore.delete(restaurant.id);
+            return tx.complete;
+        });
+    }
 }

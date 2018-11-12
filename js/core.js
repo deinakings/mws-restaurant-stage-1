@@ -2,6 +2,7 @@
  * Core code to be shared by restaurant list and detail page.
  */
 let newServiceWorker;
+let regServiceWorker;
 // create db helper
 let dbHelper = new DBHelper();
 
@@ -12,6 +13,7 @@ if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
         navigator.serviceWorker.register('/sw.js')
             .then(reg => {
+                regServiceWorker = reg;
                 console.log('Registration worked!');
                 // page was not loaded with a service worker
                 // it was loaded from network.
@@ -35,6 +37,10 @@ if ('serviceWorker' in navigator) {
         navigator.serviceWorker.addEventListener('controllerchange', event => {
             window.location.reload();
         });
+
+        // navigator.serviceWorker.ready.then((swRegistration) => {
+        //     return swRegistration.sync.register('reviews-and-favorites');
+        // });
     });
 }
 
