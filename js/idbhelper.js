@@ -84,4 +84,5 @@ class IDBHelper {
             return restaurantsStore.get(restaurantId);
         });
     }
+    
 }

@@ -241,8 +241,10 @@ document.getElementById('add-review-button').addEventListener('click', event => 
         'rating': formElements['rating'].value,
         'comments': formElements['comments'].value     
     }
-    dbHelper.addReview(newReview).then(() => {
+    dbHelper.addReview(newReview).then(response => {
         form.reset();
+        self.restaurant.reviews = self.restaurant.reviews || [];
+        self.restaurant.reviews.push(response);
+        fillReviewsHTML([response]); // add new review to html
     });
-    console.log(event);
 });

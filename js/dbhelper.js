@@ -253,8 +253,18 @@ class DBHelper {
             {
                 method: 'POST',
                 body: JSON.stringify(review)
-            }
-        );
+            })
+            .then(response => response.json())
+            .then(response => {
+                const restaurantId = Number(response['restaurant_id']);
+                this.idbHelper.getReviews(restaurantId)
+                    .then(reviewObj => {
+                        const reviews = reviewObj.reviews || [];
+                        reviews.push(response);
+                        this.idbHelper.saveReviewsByRestaurant(restaurantId, reviews);
+                    });
+                return response;
+            });
     }
 
     /**
